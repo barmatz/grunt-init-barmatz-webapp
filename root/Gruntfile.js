@@ -2,38 +2,38 @@
 module.exports = function (grunt) {
     'use strict';
     
-    var banner = '/*! <%= pkg.title %> v<%= pkg.version %> */\n',
+    var banner = '/*! <%= pkg.title || pkg.name %> v<%= pkg.version %> */\n',
     footer = '\n/*! generated <%= grunt.template.today("yyyy-mm-dd h:mm:ss TT") %> */';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
-            js: 'dist/js',
-            jsdoc: 'jsdoc',
+            js: 'dist/js',{%= jsdoc ? "\n\
+            jsdoc: 'jsdoc'," : ""%}
             css: 'dist/css'
         },
-        compass: {
-            options: {
-                cssDir: 'dist/css',
-                sassDir: 'src/css',
-                specify: 'src/css/style.scss',
-                imagesDir: 'dist/css/images',
-                javascriptDir: 'dist/js',
-                fontsDir: 'dist/css/fonts',
-                relativeAssets: true,
-                outputStyle: 'expanded'
-            },
-            dev: {
-                options: {
-                    environment: 'development'
-                }
-            },
-            dist: {
-                options: {
-                    environment: 'production'
-                }
-            }
-        },
+        {%= sass ? "compass: {\n\
+            options: {\n\
+                cssDir: 'dist/css',\n\
+                sassDir: 'src/css',\n\
+                specify: 'src/css/style.scss',\n\
+                imagesDir: 'dist/css/images',\n\
+                javascriptDir: 'dist/js',\n\
+                fontsDir: 'dist/css/fonts',\n\
+                relativeAssets: true,\n\
+                outputStyle: 'expanded'\n\
+            },\n\
+            dev: {\n\
+                options: {\n\
+                    environment: 'development'\n\
+                }\n\
+            },\n\
+            dist: {\n\
+                options: {\n\
+                    environment: 'production'\n\
+                }\n\
+            }\n\
+        }," : "" %}
         concat: {
             options: {
                 banner: banner,
@@ -50,7 +50,7 @@ module.exports = function (grunt) {
             src: {
                 expand: true,
                 cwd: 'src/',
-                src: ['**', '!**/*.{js,css,scss}'],
+                src: ['**', '!**/*.{js,{%= sass ? 'scss' : 'css' %}}'],
                 dest: 'dist/'
             },
             vendor: {
@@ -72,26 +72,22 @@ module.exports = function (grunt) {
             },
             src: {
                 files: {
-                    'dist/css/style.min.css': 'dist/css/style.css'
+                    'dist/css/style.min.css': '{%= sass ? 'dist/css/style.css' : 'src/css/**/*.css' %}'
                 }
             }
         },
-        connect: {
-            server: {}
-        },
-        jasmine: {
-            options: {
-                specs: 'test/**/{spec,*Spec}.js',
-                vendor: 'vendor/**/*.js',
-                host: 'http://127.0.0.1:8000'
-            },
-            src: {
-                src: 'src/**/*.js'
-            },
-            dist: {
-                src: 'dist/**/*.js'
-            }
-        },
+        {%= jstest ? "jasmine: {\n\
+            options: {\n\
+                specs: 'test/**/{spec,*Spec}.js',\n\
+                vendor: 'vendor/**/*.js'\n\
+            },\n\
+            src: {\n\
+                src: 'src/**/*.js'\n\
+            },\n\
+            dist: {\n\
+                src: 'dist/**/*.js'\n\
+            }\n\
+        }," : "" %}
         jshint: {
             options: {
                 jshintrc: true
@@ -126,7 +122,7 @@ module.exports = function (grunt) {
                 tasks: ['default']
             },
             css: {
-                files: ['.csslintrc', 'src/**/*.scss'],
+                files: ['.csslintrc', 'src/**/*.{%= sass ? "scss" : "css" %}'],
                 tasks: ['buildCSS']
             },
             js: {
@@ -138,38 +134,37 @@ module.exports = function (grunt) {
                 tasks: ['htmllint', 'copy']
             }
         },
-        yuidoc: {
-            compile: {
-                name: '<%= pkg.title || pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                options: {
-                    linkNatives: true,
-                    paths: 'src/js/',
-                    outdir: 'jsdoc'
-                }
-            }
-        },
+        {%= jsdoc ? "yuidoc: {\n\
+            compile: {\n\
+                name: '<%= pkg.title || pkg.name %>',\n\
+                description: '<%= pkg.description %>',\n\
+                version: '<%= pkg.version %>',\n\
+                options: {\n\
+                    linkNatives: true,\n\
+                    paths: 'src/js/',\n\
+                    outdir: 'jsdoc'\n\
+                }\n\
+            }\n\
+        }," : ""%}
         htmllint: {
             src: 'src/**/*.html'
         }
     });
 
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-compass');
+    grunt.loadNpmTasks('grunt-contrib-clean');{%= sass ? "\n\
+    grunt.loadNpmTasks('grunt-contrib-compass');" : "" %}
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-yuidoc');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
-    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');{%= jsdoc ? "\n\
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');" : "" %}{%= jstest ? "\n\
+    grunt.loadNpmTasks('grunt-contrib-jasmine');" : "" %}
     grunt.loadNpmTasks('grunt-html');
 
     grunt.registerTask('default', ['buildJS', 'buildCSS', 'htmllint', 'copy']);
-    grunt.registerTask('buildJS', ['jshint:grunt', 'jshint:src', 'jasmine:src', 'clean:js', 'concat', 'jshint:dist', 'jasmine:dist', 'uglify', 'jasmine:dist', 'clean:jsdoc', 'yuidoc']);
-    grunt.registerTask('buildCSS', ['clean:css', 'compass:dev', 'csslint', 'cssmin']);
+    grunt.registerTask('buildJS', ['jshint:grunt', 'jshint:src'{%= jstest ? ", 'jasmine:src'" : ""%}, 'clean:js', 'concat', 'jshint:dist'{%= jstest ? ", 'jasmine:dist'" : ""%}, 'uglify', 'jasmine:dist'{%= jsdoc ? ", 'clean:jsdoc', 'yuidoc'" : ""%}]);
+    grunt.registerTask('buildCSS', ['clean:css'{%=sass ? ", 'compass:dev'" : ""%}, 'csslint', 'cssmin']);
 };

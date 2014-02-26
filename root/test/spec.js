@@ -1,4 +1,7 @@
 'use strict';
 
-describe('My {%= title || name %}', function () {
+describe('{%= title || name %}', function () {
+    it('doesn\'t have any tests', function () {
+        expect(true).toBe(true);
+    });
 });
