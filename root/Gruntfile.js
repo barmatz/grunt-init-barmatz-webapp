@@ -93,6 +93,8 @@ module.exports = function (grunt) {
                 jshintrc: true
             },
             grunt: ['package.json', 'Gruntfile.js'],
+            {%= jstest ? "\n\
+            test: 'text/**/*.js'," : "" %}
             src: 'src/**/*.js',
             dist: {
                 options: {
@@ -126,7 +128,7 @@ module.exports = function (grunt) {
                 tasks: ['buildCSS']
             },
             js: {
-                files: ['.jshintrc', 'src/**/*.js'],
+                files: ['.jshintrc', '{%= jstest ? "{src,test}" : "src" %}/**/*.js'],
                 tasks: ['buildJS']
             },
             html: {
