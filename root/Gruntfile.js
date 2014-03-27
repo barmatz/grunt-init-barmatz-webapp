@@ -95,7 +95,7 @@ module.exports = function (grunt) {
             },
             grunt: ['package.json', 'Gruntfile.js'],
             {%= jstest ? "\n\
-            test: 'text/**/*.js'," : "" %}
+            test: 'test/**/*.js'," : "" %}
             src: 'src/**/*.js',
             dist: {
                 options: {
