@@ -61,6 +61,7 @@ exports.template = function (grunt, init, done) {
 
         if (props.jstest) {
             mkdir('test');
+            mkdir('test/helpers');
             devDependencies['grunt-contrib-jasmine'] = '~0.6.1';
         }
 

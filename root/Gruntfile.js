@@ -78,7 +78,8 @@ module.exports = function (grunt) {
         },
         {%= jstest ? "jasmine: {\n\
             options: {\n\
-                specs: 'test/**/{spec,*Spec}.js',\n\
+                specs: 'test/specs/**/*.js',\n\
+                helpers: 'test/helpers/**/*.js',\n\
                 vendor: 'vendor/**/*.js'\n\
             },\n\
             src: {\n\
