@@ -100,7 +100,10 @@ module.exports = function (grunt) {
                 options: {
                     devel: false
                 },
-                src: 'dist/**/*.js'
+                src: [
+                    'dist/**/*.js',
+                    '!dist/vendor/**/*.js'
+                ]
             }
         },
         uglify: {
